@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * @Description:  mybatis-plus spring-boot插件配置
  */
 @Configuration
-@MapperScan("hue.xgd.ttyx.mapper")
+@MapperScan("hue.xgd.ttyx.*.mapper")
 public class MybatisPlusConfig {
 
     /**
