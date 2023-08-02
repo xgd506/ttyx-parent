@@ -12,15 +12,17 @@ import lombok.Data;
 public class TtyxException extends RuntimeException{
     //异常状态码
     private Integer code;
+    private String message;
 
     /**
      * 通过状态码和错误消息创建异常对象
      * @param message
      * @param code
      */
-    public TtyxException(String message, Integer code) {
+    public TtyxException( Integer code,String message) {
         super(message);
         this.code = code;
+        this.message=message;
     }
 
     /**
@@ -30,13 +32,14 @@ public class TtyxException extends RuntimeException{
     public TtyxException(ResultCodeEnum resultCodeEnum) {
         super(resultCodeEnum.getMessage());
         this.code = resultCodeEnum.getCode();
+        this.message = resultCodeEnum.getMessage();
     }
 
     @Override
     public String toString() {
         return "TtyxException{" +
                 "code=" + code +
-                ", message=" + this.getMessage() +
+                ", message=" + message+'\'' +
                 '}';
     }
 }

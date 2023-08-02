@@ -1,5 +1,6 @@
 package hue.xgd.ttyx.acl.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import hue.xgd.ttyx.model.acl.AdminRole;
 
@@ -11,5 +12,7 @@ import java.util.List;
  * @Description:
  */
 public interface AdminRoleService extends IService<AdminRole> {
-    List<AdminRole> getRoleIdByAdminId(Long adminId);
+
+
+    List<AdminRole> List(LambdaQueryWrapper<AdminRole> wrapper);
 }

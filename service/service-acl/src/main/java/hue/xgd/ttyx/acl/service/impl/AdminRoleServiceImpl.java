@@ -16,10 +16,9 @@ import java.util.List;
  */
 @Service
 public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleMapper, AdminRole> implements AdminRoleService {
+
     @Override
-    public List<AdminRole> getRoleIdByAdminId(Long adminId) {
-        LambdaQueryWrapper<AdminRole> wrapper=new LambdaQueryWrapper<>();
-        wrapper.eq(AdminRole::getAdminId,adminId);
+    public List<AdminRole> List(LambdaQueryWrapper<AdminRole> wrapper) {
         List<AdminRole> list = baseMapper.selectList(wrapper);
         return list;
     }
