@@ -16,3 +16,10 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
+
+aliyun:
+  endpoint: oss-cn-hangzhou.aliyuncs.com
+  keyid: LTAI5tBLMSxa4AuECjPmG3hz
+  keysecret: deqaCnxpaXuMa2ujxFpD9azaxkzUEl
+  bucketname: gulimall-lay

@@ -3,6 +3,8 @@ package hue.xgd.ttyx.product.service;
 import hue.xgd.ttyx.model.product.SkuImage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 商品图片 服务类
@@ -13,4 +15,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SkuImageService extends IService<SkuImage> {
 
+    List<SkuImage> findBySkuInfo(Long id);
+
+    void removeBySkuInfo(Long id);
+
+    void removeBatchSkuInfo(List<Long> idList);
 }
