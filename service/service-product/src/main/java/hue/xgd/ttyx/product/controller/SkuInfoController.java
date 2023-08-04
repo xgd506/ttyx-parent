@@ -8,6 +8,8 @@ import hue.xgd.ttyx.model.product.AttrGroup;
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.product.service.SkuInfoService;
+import hue.xgd.ttyx.rabbit.constant.MqConst;
+import hue.xgd.ttyx.rabbit.service.RabbitService;
 import hue.xgd.ttyx.vo.product.AttrGroupQueryVo;
 import hue.xgd.ttyx.vo.product.SkuInfoQueryVo;
 import hue.xgd.ttyx.vo.product.SkuInfoVo;
@@ -31,6 +33,8 @@ import java.util.List;
 public class SkuInfoController {
     @Resource
     private SkuInfoService skuInfoService;
+    @Resource
+    private RabbitService rabbitService;
     @GetMapping("{page}/{limit}")
     public Result getPageList(@PathVariable Long page,
                               @PathVariable Long limit,
@@ -64,6 +68,7 @@ public class SkuInfoController {
     @DeleteMapping("remove/{id}")
     public Result remove(@PathVariable Long id) {
        skuInfoService.removeSkuInfo(id);
+       rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT,MqConst.ROUTING_GOODS_DELETE,id);
         return Result.ok(null);
     }
 
@@ -71,6 +76,7 @@ public class SkuInfoController {
     @DeleteMapping("batchRemove")
     public Result batchRemove(@RequestBody List<Long> idList) {
         skuInfoService.removeBatchSkuInfo(idList);
+        rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT,MqConst.ROUTING_GOODS_DELETE,idList);
         return Result.ok(null);
     }
 
@@ -84,12 +90,14 @@ public class SkuInfoController {
             skuInfo.setPublishStatus(status);
             skuInfoService.updateById(skuInfo);
             //TODO  整合mq将消息保存到es
+            rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT, MqConst.ROUTING_GOODS_UPPER,id);
         }else{
             //下架
             SkuInfo skuInfo = skuInfoService.getById(id);
             skuInfo.setPublishStatus(status);
             skuInfoService.updateById(skuInfo);
             //TODO  整合mq将消息同步到es
+            rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT, MqConst.ROUTING_GOODS_UPPER,id);
         }
         return Result.ok(null);
     }
