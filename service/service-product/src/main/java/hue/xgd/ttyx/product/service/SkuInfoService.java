@@ -30,4 +30,8 @@ public interface SkuInfoService extends IService<SkuInfo> {
     void removeSkuInfo(Long id);
 
     void removeBatchSkuInfo(List<Long> idList);
+
+    List<SkuInfo> findSkuInfoList(List<Long> skuIdList);
+
+    List<SkuInfo> findSkuInfoByKeyword(String keyword);
 }

@@ -5,12 +5,10 @@ import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.product.service.CategoryService;
 import hue.xgd.ttyx.product.service.SkuInfoService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author:xgd
@@ -36,5 +34,22 @@ public class ProductInnerController {
     @GetMapping("inner/getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable("skuId") Long skuId) {
         return skuInfoService.getById(skuId);
+    }
+
+    //根据skuid列表活动skuInfo信息
+    @PostMapping("inner/findSkuInfoList")
+    public List<SkuInfo> findSkuInfoList(@RequestBody List<Long> skuIdList){
+        return skuInfoService.findSkuInfoList(skuIdList);
+    }
+
+    @ApiOperation(value = "根据关键字获取sku列表")
+    @GetMapping("inner/findSkuInfoByKeyword/{keyword}")
+    public List<SkuInfo> findSkuInfoByKeyword(@PathVariable("keyword") String keyword) {
+        return skuInfoService.findSkuInfoByKeyword(keyword);
+    }
+
+    @PostMapping("inner/findCategoryList")
+    public List<Category> findCategoryList(@RequestBody List<Long> categoryList){
+        return categoryService.listByIds(categoryList);
     }
 }

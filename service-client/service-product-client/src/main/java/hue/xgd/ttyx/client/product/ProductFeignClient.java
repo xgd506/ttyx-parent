@@ -2,10 +2,13 @@ package hue.xgd.ttyx.client.product;
 
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 /**
  * @Author:xgd
@@ -20,4 +23,12 @@ public interface ProductFeignClient {
 
     @GetMapping("/api/product/inner/getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable("skuId") Long skuId);
+
+    @PostMapping("/api/product/inner/findSkuInfoList")
+    public List<SkuInfo> findSkuInfoList(@RequestBody List<Long> skuIdList);
+
+    @GetMapping("/api/product/inner/findSkuInfoByKeyword/{keyword}")
+    List<SkuInfo> findSkuInfoByKeyword(@PathVariable("keyword") String keyword);
+    @PostMapping("/api/product/inner/findCategoryList")
+    List<Category> findCategoryList(@RequestBody List<Long> rangeIdList);
 }
