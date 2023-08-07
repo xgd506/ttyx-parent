@@ -178,5 +178,19 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         return skuInfoList;
     }
 
+    @Override
+    public List<SkuInfo> findNewPersonList() {
+        //商品是新人专享
+        //商品是上架商品
+        //只显示其中3条
+        LambdaQueryWrapper<SkuInfo> wrapper=new LambdaQueryWrapper<>();
+        wrapper.eq(SkuInfo::getIsNewPerson,1);
+        wrapper.eq(SkuInfo::getPublishStatus,1);
+        wrapper.orderByDesc(SkuInfo::getStock);
+        wrapper.last("LIMIT 3");
+        List<SkuInfo> skuInfoList = baseMapper.selectList(wrapper);
+        return skuInfoList;
+    }
+
 
 }

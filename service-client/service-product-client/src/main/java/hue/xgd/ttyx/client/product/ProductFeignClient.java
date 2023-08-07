@@ -2,6 +2,7 @@ package hue.xgd.ttyx.client.product;
 
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
+import hue.xgd.ttyx.vo.user.LeaderAddressVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,4 +32,13 @@ public interface ProductFeignClient {
     List<SkuInfo> findSkuInfoByKeyword(@PathVariable("keyword") String keyword);
     @PostMapping("/api/product/inner/findCategoryList")
     List<Category> findCategoryList(@RequestBody List<Long> rangeIdList);
+    @GetMapping("/api/product/inner/findAllCategoryList")
+    List<Category> findAllCategoryList();
+    /**
+     * 获取新人专享
+     * @return
+     */
+    @GetMapping("/api/product/inner/findNewPersonSkuInfoList")
+    List<SkuInfo> findNewPersonSkuInfoList();
+
 }

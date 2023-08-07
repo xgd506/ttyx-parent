@@ -5,6 +5,7 @@ import hue.xgd.ttyx.common.constant.RedisConst;
 import hue.xgd.ttyx.common.exception.TtyxException;
 import hue.xgd.ttyx.common.result.Result;
 import hue.xgd.ttyx.common.result.ResultCodeEnum;
+import hue.xgd.ttyx.common.security.AuthContextHolder;
 import hue.xgd.ttyx.enums.UserType;
 import hue.xgd.ttyx.model.user.User;
 import hue.xgd.ttyx.user.service.UserService;
@@ -14,12 +15,10 @@ import hue.xgd.ttyx.util.JwtHelper;
 import hue.xgd.ttyx.vo.user.LeaderAddressVo;
 import hue.xgd.ttyx.vo.user.UserLoginVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -98,6 +97,19 @@ public class WeixinApiController {
                 set(RedisConst.USER_LOGIN_KEY_PREFIX + user.getId(), userLoginVo, RedisConst.USERKEY_TIMEOUT, TimeUnit.DAYS);;
         //封装返回数据Map
         return Result.ok(map);
+    }
+
+
+    @PostMapping("/auth/updateUser")
+    @ApiOperation(value = "更新用户昵称与头像")
+    public Result updateUser(@RequestBody User user) {
+        //拦截器中的上下文
+        User user1 = userService.getById(AuthContextHolder.getUserId());
+        //把昵称更新为微信用户
+        user1.setNickName(user.getNickName().replaceAll("[ue000-uefff]", "*"));
+        user1.setPhotoUrl(user.getPhotoUrl());
+        userService.updateById(user1);
+        return Result.ok(null);
     }
 
 }

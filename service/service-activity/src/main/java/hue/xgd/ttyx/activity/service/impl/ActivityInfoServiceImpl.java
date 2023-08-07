@@ -14,6 +14,7 @@ import hue.xgd.ttyx.model.activity.ActivitySku;
 import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.activity.service.ActivityInfoService;
 import hue.xgd.ttyx.vo.activity.ActivityRuleVo;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -112,5 +113,22 @@ public class ActivityInfoServiceImpl extends ServiceImpl<ActivityInfoMapper, Act
             }
         }
         return findSkuIdList;
+    }
+
+    @Override
+    public Map<Long, List<String>> findActivity(List<Long> skuIdList) {
+        Map<Long, List<String>> result=new HashMap<>();
+        for (Long skuId: skuIdList
+             ) {
+           List<ActivityRule> activityRuleList = baseMapper.findActivityRule(skuId);
+           if(CollectionUtils.isEmpty(activityRuleList)){
+               List<String> RuleDescList = activityRuleList.stream()
+                                            .map(activityRule -> activityRule.getRuleDesc())
+                                            .collect(Collectors.toList());
+               result.put(skuId,RuleDescList);
+           }
+        }
+
+        return result;
     }
 }

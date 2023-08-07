@@ -1,5 +1,10 @@
 package hue.xgd.ttyx.search.service;
 
+import hue.xgd.ttyx.model.search.SkuEs;
+import hue.xgd.ttyx.vo.search.SkuEsQueryVo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 /**
@@ -15,4 +20,8 @@ public interface SkuService {
     void deleteSku(Long skuId);
 
     void BatchdDleteSku(List<Long> skuId);
+
+    List<SkuEs> findHotSkuList();
+
+    Page<SkuEs> search(Pageable pageable, SkuEsQueryVo searchParamVo);
 }

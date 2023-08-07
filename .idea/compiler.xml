@@ -6,10 +6,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="model" />
         <module name="common-util" />
+        <module name="service-product-client" />
+        <module name="service-search-client" />
+        <module name="service-gateway" />
         <module name="server-util" />
-        <module name="service" />
+        <module name="service-home" />
+        <module name="service-sys" />
+        <module name="service-user-client" />
+        <module name="service-activity-client" />
+        <module name="service-acl" />
+        <module name="service-product" />
+        <module name="service-user" />
+        <module name="rabbit-util" />
+        <module name="service-search" />
+        <module name="model" />
+        <module name="service-activity" />
       </profile>
     </annotationProcessing>
   </component>
@@ -17,8 +29,22 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="common-util" options="-parameters" />
       <module name="model" options="-parameters" />
+      <module name="rabbit-util" options="-parameters" />
       <module name="server-util" options="-parameters" />
       <module name="service" options="-parameters" />
+      <module name="service-acl" options="-parameters" />
+      <module name="service-activity" options="-parameters" />
+      <module name="service-activity-client" options="-parameters" />
+      <module name="service-client" options="-parameters" />
+      <module name="service-gateway" options="-parameters" />
+      <module name="service-home" options="-parameters" />
+      <module name="service-product" options="-parameters" />
+      <module name="service-product-client" options="-parameters" />
+      <module name="service-search" options="-parameters" />
+      <module name="service-search-client" options="-parameters" />
+      <module name="service-sys" options="-parameters" />
+      <module name="service-user" options="-parameters" />
+      <module name="service-user-client" options="-parameters" />
     </option>
   </component>
 </project>

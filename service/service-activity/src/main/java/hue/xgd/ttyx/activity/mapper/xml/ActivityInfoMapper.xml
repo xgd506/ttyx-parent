@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="hue.xgd.ttyx.activity.mapper.ActivityInfoMapper">
-    
+    <resultMap id="ActivityRuleMap" type="hue.xgd.ttyx.model.activity.ActivityRule" autoMapping="true"></resultMap>
     <select id="selectSkuIdListExist" resultType="Long">
         select activity_sku.sku_id
         from activity_info
@@ -19,4 +19,16 @@
 
     </select>
 
+    <select id="findActivityRule" resultType="ActivityRuleMap">
+        SELECT
+            activity_info.activity_type as activityType,
+            activity_rule.id,rule.activity_id,activity_rule.condition_amount,
+            activity_rule.condition_num,activity_rule.benefit_amount,activity_rule.benefit_discount
+        FROM activity_sku
+                 INNER JOIN activity_info ON activity_info.id = activity_sku.activity_id
+                 INNER JOIN activity_rule ON activity_sku.activity_id = activity_rule.activity_id
+            AND activity_sku.sku_id = #{skuId}
+        WHERE now() BETWEEN activity_info.start_time AND activity_info.end_time
+        ORDER BY activity_rule.condition_amount DESC,activity_rule.condition_num desc
+    </select>
 </mapper>
