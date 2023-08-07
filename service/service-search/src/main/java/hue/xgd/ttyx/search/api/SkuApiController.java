@@ -44,4 +44,10 @@ public class SkuApiController {
         Page<SkuEs> pageModel =  skuService.search(pageable, searchParamVo);
         return Result.ok(pageModel);
     }
+
+    @GetMapping("inner/incrHotScore/{skuId}")
+    public Boolean incrHotScore(@PathVariable("skuId") Long skuId){
+        skuService.incrHotScore(skuId);
+        return true;
+    }
 }

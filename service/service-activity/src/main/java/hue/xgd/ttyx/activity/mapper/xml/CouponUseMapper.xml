@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hue.xgd.ttyx.activity.mapper.CouponUseMapper">
+    <resultMap id="CouponUseMap" type="hue.xgd.ttyx.model.activity.CouponUse" autoMapping="true"/>
+    <select id="getCouponInfoByUseId" resultMap="CouponUseMap">
+        select coupon_info.*
+        from coupon_info
+                 INNER JOIN coupon_use
+                            ON coupon_use.coupon_id=coupon_info.id
+        where coupon_use.user_id=#{userId}
+        and now() BETWEEN coupon_info.start_time and coupon_info.expire_time
+    </select>
+   
+</mapper>

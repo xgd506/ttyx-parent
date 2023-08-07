@@ -5,19 +5,25 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import hue.xgd.ttyx.activity.mapper.ActivityInfoMapper;
 import hue.xgd.ttyx.activity.mapper.CouponInfoMapper;
 import hue.xgd.ttyx.activity.mapper.CouponRangeMapper;
+import hue.xgd.ttyx.activity.mapper.CouponUseMapper;
+import hue.xgd.ttyx.activity.service.ActivityInfoService;
 import hue.xgd.ttyx.activity.service.CouponInfoService;
 import hue.xgd.ttyx.client.product.ProductFeignClient;
 import hue.xgd.ttyx.enums.CouponRangeType;
+import hue.xgd.ttyx.model.activity.ActivityRule;
 import hue.xgd.ttyx.model.activity.CouponInfo;
 import hue.xgd.ttyx.model.activity.CouponRange;
+import hue.xgd.ttyx.model.activity.CouponUse;
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.vo.activity.CouponRuleVo;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +39,10 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
     private CouponRangeMapper rangeMapper;
     @Resource
     private ProductFeignClient productFeignClient;
+    @Resource
+    private CouponUseMapper couponUseMapper;
+    @Resource
+    private ActivityInfoService activityInfoService;
     @Override
     public IPage<CouponInfo> selectPage(Page<CouponInfo> pageParam) {
         Page<CouponInfo> couponInfoPage = baseMapper.selectPage(pageParam, null);
@@ -107,5 +117,29 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
         QueryWrapper<CouponInfo> couponInfoQueryWrapper = new QueryWrapper<>();
         couponInfoQueryWrapper.like("coupon_name",keyword);
         return baseMapper.selectList(couponInfoQueryWrapper);
+    }
+
+    @Override
+    public Map<String, Object> getCouponInfoByUserId(Long skuId,Long userId) {
+        Map<String,Object> result=new HashMap<>();
+        //得到分类categoryId 判断是否属于优惠返回
+        SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
+        //获得优惠券信息
+        List<CouponInfo> couponInfoList= baseMapper.selectCouponInfoList(skuInfo,skuInfo.getCategoryId(),userId);
+        /* 没有考虑到商品是否属于优惠券可用范围
+        List<CouponUse> couponUseList= couponUseMapper.getCouponInfoByUseId(userId);
+
+        List<Long> couponIdList = couponUseList.stream().map(CouponUse::getCouponId)
+                                                    .collect(Collectors.toList());
+        List<CouponInfo> couponInfoList=new ArrayList<>();
+        for (Long couponId:couponIdList) {
+            CouponInfo couponInfo = baseMapper.selectById(couponId);
+            couponInfoList.add(couponInfo);
+        }
+         */
+        result.put("couponInfoList",couponInfoList);
+        Map<String, Object> activityRuleList = activityInfoService.findActivityRuleList(skuId);
+        result.putAll(activityRuleList);
+        return result;
     }
 }

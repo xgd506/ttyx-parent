@@ -13,6 +13,7 @@ import hue.xgd.ttyx.vo.search.SkuEsQueryVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +38,8 @@ public class SkuServiceImpl implements SkuService {
     private ProductFeignClient productFeignClient;
     @Resource
     private ActivityFeignClient activityFeignClient;
+    @Resource
+    private RedisTemplate redisTemplate;
     @Override
     public void upperSku(Long skuId) {
         SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
@@ -126,5 +130,20 @@ public class SkuServiceImpl implements SkuService {
             }
         }
         return pageModel;
+    }
+
+    @Override
+    public void incrHotScore(Long skuId) {
+        //如果每次都更新Es，es的数据要保存在磁盘上，这样效率，性能太低
+        //使用redis  当达到一定次数去更新es
+        String key="hotScore";
+        Double hotScore = redisTemplate.opsForZSet().incrementScore(key, "skuId:" + skuId, 1);
+        if(hotScore%100==0){
+            Optional<SkuEs> optional = skuRepository.findById(skuId);
+            SkuEs skuEs = optional.get();
+            skuEs.setHotScore(Math.round(hotScore));
+            //有id更新，没有就是添加
+            skuRepository.save(skuEs);
+        }
     }
 }

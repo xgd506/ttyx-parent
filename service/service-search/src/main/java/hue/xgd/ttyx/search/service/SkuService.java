@@ -24,4 +24,6 @@ public interface SkuService {
     List<SkuEs> findHotSkuList();
 
     Page<SkuEs> search(Pageable pageable, SkuEsQueryVo searchParamVo);
+
+    void incrHotScore(Long skuId);
 }

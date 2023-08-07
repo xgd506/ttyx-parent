@@ -2,6 +2,7 @@ package hue.xgd.ttyx.client.product;
 
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
+import hue.xgd.ttyx.vo.product.SkuInfoVo;
 import hue.xgd.ttyx.vo.user.LeaderAddressVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,4 +42,7 @@ public interface ProductFeignClient {
     @GetMapping("/api/product/inner/findNewPersonSkuInfoList")
     List<SkuInfo> findNewPersonSkuInfoList();
 
+
+    @GetMapping("/api/product/inner/get/{id}")
+    SkuInfoVo get(@PathVariable Long id);
 }

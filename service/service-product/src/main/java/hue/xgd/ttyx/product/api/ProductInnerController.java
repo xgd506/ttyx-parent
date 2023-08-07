@@ -1,9 +1,11 @@
 package hue.xgd.ttyx.product.api;
 
+import hue.xgd.ttyx.common.result.Result;
 import hue.xgd.ttyx.model.product.Category;
 import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.product.service.CategoryService;
 import hue.xgd.ttyx.product.service.SkuInfoService;
+import hue.xgd.ttyx.vo.product.SkuInfoVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,5 +65,11 @@ public class ProductInnerController {
     @GetMapping("inner/findNewPersonSkuInfoList")
     public List<SkuInfo> findNewPersonSkuInfoList() {
         return skuInfoService.findNewPersonList();
+    }
+
+    @ApiOperation(value = "获取Sku信息")
+    @GetMapping("inner/get/{id}")
+    public SkuInfoVo get(@PathVariable Long id){
+        return skuInfoService.getSkuInfoVo(id);
     }
 }
