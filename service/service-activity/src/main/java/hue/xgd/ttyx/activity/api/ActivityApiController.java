@@ -3,9 +3,13 @@ package hue.xgd.ttyx.activity.api;
 import hue.xgd.ttyx.activity.service.ActivityInfoService;
 import hue.xgd.ttyx.activity.service.CouponInfoService;
 import hue.xgd.ttyx.model.activity.CouponInfo;
+import hue.xgd.ttyx.model.order.CartInfo;
+import hue.xgd.ttyx.vo.order.OrderConfirmVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +35,11 @@ public class ActivityApiController {
     public Map<String,Object> findCoupon(@PathVariable("skuId") Long skuId,
                                          @PathVariable("userId") Long userId){
           return  couponInfoService.getCouponInfoByUserId(skuId,userId);
+    }
+    @ApiOperation(value = "获取购物车满足条件的促销与优惠券信息")
+    @PostMapping("inner/findCartActivityAndCoupon/{userId}")
+    public OrderConfirmVo findCartActivityAndCoupon(@RequestBody List<CartInfo> cartInfoList, @PathVariable("userId") Long userId) {
+        return activityInfoService.findCartActivityAndCoupon(cartInfoList, userId);
     }
 
 }

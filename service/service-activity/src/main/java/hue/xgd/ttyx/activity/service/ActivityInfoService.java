@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import hue.xgd.ttyx.model.activity.ActivityInfo;
 import hue.xgd.ttyx.model.activity.ActivityRule;
+import hue.xgd.ttyx.model.order.CartInfo;
 import hue.xgd.ttyx.vo.activity.ActivityRuleVo;
+import hue.xgd.ttyx.vo.order.CartInfoVo;
+import hue.xgd.ttyx.vo.order.OrderConfirmVo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,4 +28,8 @@ public interface ActivityInfoService extends IService<ActivityInfo> {
     Object findSkuInfoByKeyword(String keyword);
 
     Map<Long, List<String>> findActivity(List<Long> skuIdList);
+
+    OrderConfirmVo findCartActivityAndCoupon(List<CartInfo> cartInfoList, Long userId);
+
+    List<CartInfoVo> findCartActivityList(List<CartInfo> cartInfoList);
 }

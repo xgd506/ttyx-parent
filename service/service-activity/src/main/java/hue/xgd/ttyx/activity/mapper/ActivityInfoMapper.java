@@ -3,6 +3,7 @@ package hue.xgd.ttyx.activity.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import hue.xgd.ttyx.model.activity.ActivityInfo;
 import hue.xgd.ttyx.model.activity.ActivityRule;
+import hue.xgd.ttyx.model.activity.ActivitySku;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface ActivityInfoMapper extends BaseMapper<ActivityInfo> {
     List<Long> selectSkuIdListExist(@Param("skuIdList") List<Long> skuIdList);
 
     List<ActivityRule> findActivityRule(@Param("skuId")Long skuId);
+
+    List<ActivitySku> findCartActivity(@Param("skuIdList")List<Long> skuIdList);
 }

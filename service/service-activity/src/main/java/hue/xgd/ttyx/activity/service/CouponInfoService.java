@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import hue.xgd.ttyx.model.activity.CouponInfo;
+import hue.xgd.ttyx.model.order.CartInfo;
 import hue.xgd.ttyx.vo.activity.CouponRuleVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,4 +27,6 @@ public interface CouponInfoService extends IService<CouponInfo> {
     Object findCouponByKeyword(String keyword);
 
     Map<String,Object> getCouponInfoByUserId(Long skuId,Long userId);
+
+    List<CouponInfo> findCartCouponInfo(List<CartInfo> cartInfoList, Long userId);
 }
