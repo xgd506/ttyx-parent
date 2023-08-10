@@ -13,6 +13,7 @@ import hue.xgd.ttyx.activity.service.ActivityInfoService;
 import hue.xgd.ttyx.activity.service.CouponInfoService;
 import hue.xgd.ttyx.client.product.ProductFeignClient;
 import hue.xgd.ttyx.enums.CouponRangeType;
+import hue.xgd.ttyx.enums.CouponStatus;
 import hue.xgd.ttyx.model.activity.ActivityRule;
 import hue.xgd.ttyx.model.activity.CouponInfo;
 import hue.xgd.ttyx.model.activity.CouponRange;
@@ -188,6 +189,8 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
         return userAllCouponInfoList;
 
     }
+
+
     private BigDecimal computeTotalAmount(List<CartInfo> cartInfoList) {
         BigDecimal total = new BigDecimal("0");
         for (CartInfo cartInfo : cartInfoList) {
@@ -206,19 +209,30 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
      * @param couponId
      * @return
      */
-//    @Override
-//    public CouponInfo findRangeSkuIdList(List<CartInfo> cartInfoList, Long couponId) {
-//        CouponInfo couponInfo = this.getById(couponId);
-//        if(null == couponInfo || couponInfo.getCouponStatus().intValue() == 2) return null;
-//
-//        //查询优惠券对应的范围
-//        List<CouponRange> couponRangesList = rangeMapper.selectList(new LambdaQueryWrapper<CouponRange>().eq(CouponRange::getCouponId, couponId));
-//        //获取优惠券id对应的满足使用范围的购物项skuId列表
-//        Map<Long, List<Long>> couponIdToSkuIdMap = this.findCouponIdToSkuIdMap(cartInfoList, couponRangesList);
-//        List<Long> skuIdList = couponIdToSkuIdMap.entrySet().iterator().next().getValue();
-//        couponInfo.setSkuIdList(skuIdList);
-//        return couponInfo;
-//    }
+    @Override
+    public CouponInfo findRangeSkuIdList(List<CartInfo> cartInfoList, Long couponId) {
+        CouponInfo couponInfo = this.getById(couponId);
+        if(null == couponInfo || couponInfo.getCouponStatus().intValue() == 2) return null;
+
+        //查询优惠券对应的范围
+        List<CouponRange> couponRangesList = rangeMapper.selectList(new LambdaQueryWrapper<CouponRange>().eq(CouponRange::getCouponId, couponId));
+        //获取优惠券id对应的满足使用范围的购物项skuId列表
+        Map<Long, List<Long>> couponIdToSkuIdMap = this.findCouponIdToSkuIdMap(cartInfoList, couponRangesList);
+        List<Long> skuIdList = couponIdToSkuIdMap.entrySet().iterator().next().getValue();
+        couponInfo.setSkuIdList(skuIdList);
+        return couponInfo;
+    }
+
+    //更新优惠券的状态未使用---》已用
+    @Override
+    public void updateCouponInfoUseStatus(Long couponId, Long userId, Long orderId) {
+        CouponUse couponUse = couponUseMapper.selectOne(new LambdaQueryWrapper<CouponUse>()
+                .eq(CouponUse::getCouponId, couponId)
+                .eq(CouponUse::getUserId, userId));
+        couponUse.setOrderId(orderId);
+        couponUse.setCouponStatus(CouponStatus.USED);
+        couponUseMapper.updateById(couponUse);
+    }
 
     /**
      * 获取优惠券id对应的满足使用范围的购物项skuId列表

@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author:xgd
@@ -167,6 +168,29 @@ public class CartInfoServiceImpl implements CartInfoService {
             CartInfo cartInfo = hashOperations.get(skuId.toString());
             cartInfo.setIsChecked(isChecked);
             hashOperations.put(cartInfo.getSkuId().toString(), cartInfo);
+        });
+    }
+
+    @Override
+    public List<CartInfo> getCartCheckedList(Long userId) {
+        String cartKey = this.getCartKey(userId);
+        BoundHashOperations<String,String,CartInfo> boundHashOperations =
+                                                    redisTemplate.boundHashOps(cartKey);
+        List<CartInfo> cartInfoList = boundHashOperations.values();
+        List<CartInfo> cartInfos = cartInfoList.stream().filter(cartInfo -> {
+            return cartInfo.getIsChecked().intValue() == 1;
+        }).collect(Collectors.toList());
+        return cartInfos;
+    }
+
+    @Override
+    public void deleteCartChecked(Long userId) {
+        List<CartInfo> cartCheckedList = this.getCartCheckedList(userId);
+        List<Long> skuIdList = cartCheckedList.stream().map(item -> item.getSkuId()).collect(Collectors.toList());
+        String cartKey = this.getCartKey(userId);
+        BoundHashOperations<String,String,CartInfo> boundHashOperations = redisTemplate.boundHashOps(cartKey);
+        skuIdList.forEach(skuId->{
+            boundHashOperations.delete(skuId.toString());
         });
     }
 

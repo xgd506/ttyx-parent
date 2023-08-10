@@ -4,6 +4,7 @@ import hue.xgd.ttyx.activity.service.ActivityInfoService;
 import hue.xgd.ttyx.activity.service.CouponInfoService;
 import hue.xgd.ttyx.model.activity.CouponInfo;
 import hue.xgd.ttyx.model.order.CartInfo;
+import hue.xgd.ttyx.vo.order.CartInfoVo;
 import hue.xgd.ttyx.vo.order.OrderConfirmVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +42,21 @@ public class ActivityApiController {
     public OrderConfirmVo findCartActivityAndCoupon(@RequestBody List<CartInfo> cartInfoList, @PathVariable("userId") Long userId) {
         return activityInfoService.findCartActivityAndCoupon(cartInfoList, userId);
     }
+     @PostMapping("inner/findCartActivityList")
+     public  List<CartInfoVo> findCartActivityList(@RequestBody List<CartInfo> cartInfoList){
+        return activityInfoService.findCartActivityList(cartInfoList);
+     }
+     @PostMapping("inner/findRangeSkuIdList/{couponId}")
+    public CouponInfo findRangeSkuIdList(@RequestBody List<CartInfo> cartInfoList,
+                                         @PathVariable("couponId") Long couponId){
+        return couponInfoService.findRangeSkuIdList(cartInfoList,couponId);
+     }
 
+     @GetMapping("inner/updateCouponInfoUseStatus/{couponId}/{userId}/{orderId}")
+    public Boolean updateCouponInfoUseStatus(@PathVariable("couponId") Long couponId,
+                                             @PathVariable("userId") Long userId,
+                                             @PathVariable("orderId") Long orderId){
+       couponInfoService.updateCouponInfoUseStatus(couponId,userId,orderId);
+       return true;
+     }
 }

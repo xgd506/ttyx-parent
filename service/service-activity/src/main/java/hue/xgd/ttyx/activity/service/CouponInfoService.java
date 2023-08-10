@@ -29,4 +29,8 @@ public interface CouponInfoService extends IService<CouponInfo> {
     Map<String,Object> getCouponInfoByUserId(Long skuId,Long userId);
 
     List<CouponInfo> findCartCouponInfo(List<CartInfo> cartInfoList, Long userId);
+
+    CouponInfo findRangeSkuIdList(List<CartInfo> cartInfoList, Long couponId);
+
+    void updateCouponInfoUseStatus(Long couponId, Long userId, Long orderId);
 }

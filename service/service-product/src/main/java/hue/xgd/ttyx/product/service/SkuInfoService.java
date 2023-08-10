@@ -6,6 +6,7 @@ import hue.xgd.ttyx.model.product.SkuInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import hue.xgd.ttyx.vo.product.SkuInfoQueryVo;
 import hue.xgd.ttyx.vo.product.SkuInfoVo;
+import hue.xgd.ttyx.vo.product.SkuStockLockVo;
 
 import java.util.List;
 
@@ -36,4 +37,8 @@ public interface SkuInfoService extends IService<SkuInfo> {
     List<SkuInfo> findSkuInfoByKeyword(String keyword);
 
     List<SkuInfo> findNewPersonList();
+
+    Boolean checkAndLock(List<SkuStockLockVo> skuStockLockVoList, String orderNo);
+
+    void minusStock(String orderNo);
 }

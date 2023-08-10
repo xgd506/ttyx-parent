@@ -3,6 +3,9 @@ package hue.xgd.ttyx.product.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import hue.xgd.ttyx.common.constant.RedisConst;
+import hue.xgd.ttyx.common.exception.TtyxException;
+import hue.xgd.ttyx.common.result.ResultCodeEnum;
 import hue.xgd.ttyx.model.product.*;
 import hue.xgd.ttyx.product.mapper.SkuInfoMapper;
 import hue.xgd.ttyx.product.service.SkuAttrValueService;
@@ -12,7 +15,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import hue.xgd.ttyx.product.service.SkuPosterService;
 import hue.xgd.ttyx.vo.product.SkuInfoQueryVo;
 import hue.xgd.ttyx.vo.product.SkuInfoVo;
+import hue.xgd.ttyx.vo.product.SkuStockLockVo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -37,6 +44,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
     private SkuImageService skuImageService;
     @Resource
     private SkuPosterService skuPosterService;
+    @Resource
+    private RedisTemplate redisTemplate;
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public IPage<SkuInfo> selectCategory(Page<SkuInfo> pageParams, SkuInfoQueryVo skuInfoQueryVo) {
@@ -192,5 +203,78 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         return skuInfoList;
     }
 
+    @Override
+    public Boolean checkAndLock(List<SkuStockLockVo> skuStockLockVoList, String orderNo) {
+            if (CollectionUtils.isEmpty(skuStockLockVoList)){
+                throw new TtyxException(ResultCodeEnum.DATA_ERROR);
+            }
 
+            // 遍历所有商品，验库存并锁库存，要具备原子性
+            skuStockLockVoList.forEach(skuStockLockVo -> {
+                checkLock(skuStockLockVo);
+            });
+
+            // 只要有一个商品锁定失败，所有锁定成功的商品要解锁库存
+            if (skuStockLockVoList.stream().anyMatch(skuStockLockVo -> !skuStockLockVo.getIsLock())) {
+                // 获取所有锁定成功的商品，遍历解锁库存
+                skuStockLockVoList.stream().filter(SkuStockLockVo::getIsLock).forEach(skuStockLockVo -> {
+                   baseMapper.unlockStock(skuStockLockVo.getSkuId(), skuStockLockVo.getSkuNum());
+                });
+                // 响应锁定状态
+                return false;
+            }
+
+            // 如果所有商品都锁定成功的情况下，需要缓存锁定信息到redis。以方便将来解锁库存 或者 减库存
+            // 以orderNo作为key，以lockVos锁定信息作为value
+            this.redisTemplate.opsForValue().set(RedisConst.SROCK_INFO + orderNo, skuStockLockVoList);
+
+            // 锁定库存成功之后，定时解锁库存。
+            //this.rabbitTemplate.convertAndSend("ORDER_EXCHANGE", "stock.ttl", orderToken);
+            return true;
+    }
+
+    private void checkLock(SkuStockLockVo skuStockLockVo){
+        //公平锁，就是保证客户端获取锁的顺序，跟他们请求获取锁的顺序，是一样的。
+        // 公平锁需要排队
+        // ，谁先申请获取这把锁，
+        // 谁就可以先获取到这把锁，是按照请求的先后顺序来的。
+        RLock rLock = this.redissonClient
+                .getFairLock(RedisConst.SKUKEY_PREFIX + skuStockLockVo.getSkuId());
+        rLock.lock();
+
+        try {
+            // 验库存：查询，返回的是满足要求的库存列表
+            SkuInfo skuInfo = baseMapper.checkStock(skuStockLockVo.getSkuId(), skuStockLockVo.getSkuNum());
+            // 如果没有一个仓库满足要求，这里就验库存失败
+            if (null == skuInfo) {
+                skuStockLockVo.setIsLock(false);
+                return;
+            }
+
+            // 锁库存：更新
+            Integer row = baseMapper.lockStock(skuStockLockVo.getSkuId(), skuStockLockVo.getSkuNum());
+            if (row == 1) {
+                skuStockLockVo.setIsLock(true);
+            }
+        } finally {
+            rLock.unlock();
+        }
+    }
+
+    @Override
+    public void minusStock(String orderNo) {
+        // 获取锁定库存的缓存信息
+        List<SkuStockLockVo> skuStockLockVoList = (List<SkuStockLockVo>)this.redisTemplate.opsForValue().get(RedisConst.SROCK_INFO + orderNo);
+        if (CollectionUtils.isEmpty(skuStockLockVoList)){
+            return ;
+        }
+
+        // 减库存
+        skuStockLockVoList.forEach(skuStockLockVo -> {
+            baseMapper.minusStock(skuStockLockVo.getSkuId(), skuStockLockVo.getSkuNum());
+        });
+
+        // 解锁库存之后，删除锁定库存的缓存。以防止重复解锁库存
+        this.redisTemplate.delete(RedisConst.SROCK_INFO + orderNo);
+    }
 }

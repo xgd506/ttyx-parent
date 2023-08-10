@@ -6,6 +6,7 @@ import hue.xgd.ttyx.model.product.SkuInfo;
 import hue.xgd.ttyx.product.service.CategoryService;
 import hue.xgd.ttyx.product.service.SkuInfoService;
 import hue.xgd.ttyx.vo.product.SkuInfoVo;
+import hue.xgd.ttyx.vo.product.SkuStockLockVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,5 +72,11 @@ public class ProductInnerController {
     @GetMapping("inner/get/{id}")
     public SkuInfoVo get(@PathVariable Long id){
         return skuInfoService.getSkuInfoVo(id);
+    }
+
+    @ApiOperation(value = "锁定库存")
+    @PostMapping("inner/checkAndLock/{orderNo}")
+    public Boolean checkAndLock(@RequestBody List<SkuStockLockVo> skuStockLockVoList, @PathVariable String orderNo) {
+        return skuInfoService.checkAndLock(skuStockLockVoList, orderNo);
     }
 }

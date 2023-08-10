@@ -3,6 +3,8 @@ package hue.xgd.ttyx.vo.order;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class OrderSubmitVo {
 
@@ -24,7 +26,7 @@ public class OrderSubmitVo {
 	@ApiModelProperty(value = "下单选中的优惠券id")
 	private Long couponId;
 
-//	@ApiModelProperty("购买的sku信息")
-//	private List<Long> skuIdList;
+	@ApiModelProperty("购买的sku信息")
+	private List<Long> skuIdList;
 }
 
